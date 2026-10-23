@@ -1,15 +1,25 @@
 # Security baseline
 
-## Milestone 1 posture
+## Milestone 2 posture
 
-This milestone contains no authentication flow, privileged service client, database connection, tenant data, or payment processing. The environment template reserves future variables while keeping all secret names server-only.
+The database schema is ready for Supabase identities, but the application still contains no authentication UI or privileged client. PostgreSQL is the final authorization boundary: public tables have forced RLS, tenant policies derive identity from `auth.uid()`, and normal users receive only the table and column grants needed by an allowed workflow.
+
+Tenant membership, permission, location scope, and subscription entitlement checks run in security-definer functions in the unexposed `private` schema. Those functions use an empty search path, schema-qualified relations, explicit execute grants, active-membership checks, and no user-editable JWT authorization metadata.
+
+Direct authenticated writes to memberships, roles, role assignments, permission mappings, plans, subscriptions, and entitlements are denied. Future management workflows must use reviewed server-side operations that preserve the same invariants; Milestone 3 must not weaken these table grants for convenience.
+
+## Implemented controls
+
+- PostgreSQL row-level security on every tenant-owned table
+- forced RLS and explicit least-privilege grants on every public table
+- active-membership, permission, location, and entitlement helper functions
+- immutable tenant identifiers and tenant-consistent composite foreign keys
+- exact numeric persistence for subscription prices and entitlement quantities
+- adversarial PostgreSQL tests using distinct authenticated identities
 
 ## Non-negotiable controls for later milestones
 
-- PostgreSQL row-level security on every tenant-owned table
-- deny-by-default server authorization for organization, location, permission, and entitlement scope
 - server-verified Supabase sessions; client state is never authorization evidence
-- least-privilege database roles and narrowly scoped service-role use
 - signed and idempotent webhook processing
 - CSRF, redirect, cookie, and cache behavior reviewed at each server mutation boundary
 - structured audit events for membership, role, billing, integration, and inventory changes

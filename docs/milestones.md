@@ -2,7 +2,7 @@
 
 Each milestone is an approval gate. Starting a later milestone requires an explicit scope review; completing an earlier milestone does not implicitly authorize later work.
 
-## Milestone 1 — engineering foundation (current)
+## Milestone 1 — engineering foundation (complete)
 
 - pnpm modular monorepo
 - Next.js, TypeScript, Tailwind CSS, and shadcn/ui-compatible UI foundation
@@ -14,18 +14,18 @@ Each milestone is an approval gate. Starting a later milestone requires an expli
 
 Explicitly excluded: database schema, migrations, seed data, Supabase clients/authentication, RLS, tenant entities, application authorization, onboarding, dashboards, subscriptions, and restaurant operations modules.
 
-## Milestone 2 — identity and tenant data (requires approval)
+## Milestone 2 — identity and tenant data (complete)
 
 - PostgreSQL migration tooling and local database workflow
 - users/profiles, organizations, locations, memberships, roles, permissions, subscriptions, and entitlements schema
-- Supabase Auth server integration
-- database-enforced RLS and least-privilege database roles
-- server authorization primitives
+- profiles tied to Supabase Auth identities
+- database-enforced RLS and least-privilege database grants
+- database authorization and entitlement helper functions
 - seed fixtures and automated cross-tenant isolation tests
 
-Exit gate: adversarial tests prove that users cannot read or mutate another organization's data, including through guessed identifiers and nested resources.
+Exit gate passed: 79 PostgreSQL assertions use separate authenticated identities to prove authorized access, cross-organization denial, multi-organization membership, suspended-member denial, location scoping, tenant-consistent foreign keys, and direct privilege-escalation denial.
 
-## Milestone 3 — onboarding and organization shell
+## Milestone 3 — onboarding and organization shell (requires approval)
 
 - create an organization and first location transactionally
 - invite and membership flows

@@ -52,3 +52,36 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+  database:
+    name: Verify PostgreSQL migrations and RLS
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.95.4
+
+      - name: Start isolated PostgreSQL
+        run: supabase db start
+
+      - name: Rebuild database from migrations and seed
+        run: supabase db reset --local
+
+      - name: Lint database schema
+        run: supabase db lint --local --level warning --fail-on error
+
+      - name: Run security and performance advisors
+        run: supabase db advisors --local --type all --level warn --fail-on warn
+
+      - name: Run PostgreSQL integration tests
+        run: supabase test db
+
+      - name: Stop local Supabase services
+        if: always()
+        run: supabase stop --project-id restaurant-saas

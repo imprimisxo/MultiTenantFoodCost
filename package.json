@@ -11,6 +11,13 @@
   "scripts": {
     "build": "turbo run build",
     "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "db:advisors": "supabase db advisors --local --type all --level warn --fail-on warn",
+    "db:lint": "supabase db lint --local --level warning --fail-on error",
+    "db:reset": "supabase db reset --local",
+    "db:start": "supabase db start",
+    "db:stop": "supabase stop --project-id restaurant-saas",
+    "db:test": "supabase test db",
+    "db:verify": "pnpm db:reset && pnpm db:lint && pnpm db:advisors && pnpm db:test",
     "dev": "turbo run dev --parallel",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
