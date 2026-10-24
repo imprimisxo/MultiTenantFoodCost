@@ -9,14 +9,15 @@ export const metadata: Metadata = {
     template: "%s | RestaurantOS",
   },
   description:
-    "A production-oriented restaurant operations platform foundation.",
+    "Secure multi-tenant organization access for a restaurant operations platform.",
+  referrer: "same-origin",
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="en">
+    <html data-scroll-behavior="smooth" lang="en">
       <body>{children}</body>
     </html>
   );

@@ -17,7 +17,8 @@
 ```bash
 pnpm install
 cp .env.example apps/web/.env.local
-pnpm db:start
+supabase start
+supabase status -o env
 pnpm db:verify
 pnpm dev
 ```
@@ -33,7 +34,8 @@ The web app is served at `http://localhost:3000` by default. Local PostgreSQL li
 | `pnpm format:check` | Verify formatting without changing files      |
 | `pnpm lint`         | Run ESLint with warnings treated as failures  |
 | `pnpm typecheck`    | Type-check every workspace                    |
-| `pnpm test`         | Run automated tests                           |
+| `pnpm test`         | Run unit and component tests                  |
+| `pnpm test:e2e`     | Run Playwright auth and tenant journeys       |
 | `pnpm build`        | Create production builds                      |
 | `pnpm check`        | Run every required verification gate in order |
 | `pnpm db:start`     | Start the isolated local PostgreSQL database  |
@@ -51,6 +53,17 @@ Create forward-only, timestamped SQL files in `supabase/migrations`. Never edit 
 Every tenant-owned table carries `organization_id`, and foreign keys that cross tenant-owned tables include that identifier. Every public table has forced RLS. Normal requests run as `authenticated`; do not use the service role to bypass policies for user traffic.
 
 The integration tests live in `supabase/tests/database`. They set real PostgreSQL roles and JWT claims, so an allowed or denied assertion exercises table grants, RLS policies, and helper functions together. `pnpm db:verify` also fails on Supabase advisor warnings so missing RLS and common indexing or function-security mistakes do not silently enter CI.
+
+For browser tests, start the full local stack and export the CLI values without committing them:
+
+```bash
+eval "$(supabase status -o env)"
+export NEXT_PUBLIC_SUPABASE_URL="$API_URL"
+export NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="$ANON_KEY"
+pnpm test:e2e
+```
+
+Local auth requires email confirmation, has a 24-hour absolute session limit, and expires sessions after eight hours of inactivity. Inbucket captures local verification and recovery mail. The application stores Supabase sessions in HTTP-only, same-site cookies and does not use the service role for user traffic.
 
 The production build uses Next.js's supported Webpack mode for portability in restricted build environments. Development can still use the Next.js default compiler. Re-evaluate this pin when the Turbopack CSS worker no longer requires an internal loopback port in managed sandboxes.
 

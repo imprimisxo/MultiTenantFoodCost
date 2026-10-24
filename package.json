@@ -23,6 +23,7 @@
     "format:check": "prettier --check .",
     "lint": "eslint . --max-warnings=0",
     "test": "turbo run test",
+    "test:e2e": "pnpm --filter @workspace/web test:e2e",
     "typecheck": "turbo run typecheck"
   },
   "devDependencies": {

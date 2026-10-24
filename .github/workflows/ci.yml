@@ -85,3 +85,50 @@ jobs:
       - name: Stop local Supabase services
         if: always()
         run: supabase stop --project-id restaurant-saas
+
+  browser:
+    name: Verify authentication and onboarding journeys
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+          run_install: false
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.95.4
+
+      - name: Install Chromium
+        run: pnpm --filter @workspace/web exec playwright install --with-deps chromium
+
+      - name: Start local Supabase stack
+        run: supabase start
+
+      - name: Run browser journeys
+        shell: bash
+        run: |
+          eval "$(supabase status -o env)"
+          export NEXT_PUBLIC_SUPABASE_URL="$API_URL"
+          export NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="$ANON_KEY"
+          pnpm test:e2e
+
+      - name: Stop local Supabase services
+        if: always()
+        run: supabase stop --project-id restaurant-saas

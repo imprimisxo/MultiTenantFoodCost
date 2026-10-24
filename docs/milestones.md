@@ -25,13 +25,17 @@ Explicitly excluded: database schema, migrations, seed data, Supabase clients/au
 
 Exit gate passed: 79 PostgreSQL assertions use separate authenticated identities to prove authorized access, cross-organization denial, multi-organization membership, suspended-member denial, location scoping, tenant-consistent foreign keys, and direct privilege-escalation denial.
 
-## Milestone 3 — onboarding and organization shell (requires approval)
+## Milestone 3 — authentication, onboarding, and organization shell (implemented)
 
+- Supabase Auth signup, email verification, sign-in, sign-out, and password recovery
+- HTTP-only SSR sessions, protected routes, and server-verified identities
 - create an organization and first location transactionally
-- invite and membership flows
+- expiring, recipient-bound, single-use invite and membership flows
 - organization dashboard and accessible location switcher
 - permission- and entitlement-aware navigation
 - audit events for security-sensitive changes
+
+Exit gate implementation: 42 new PostgreSQL assertions and five Playwright journeys cover onboarding, entitlement enforcement, invitation abuse, tenant isolation, suspended membership, protected routes, and verification boundaries. See the Milestone 3 report for the checks actually executed in the delivery environment.
 
 ## Milestone 4 — recipes and costing
 

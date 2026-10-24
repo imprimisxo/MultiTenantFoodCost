@@ -1,8 +1,8 @@
 # RestaurantOS SaaS
 
-Milestone 2 of a production-oriented, multi-tenant restaurant management SaaS. The repository now includes a versioned Supabase/PostgreSQL tenant model, database-enforced authorization, local fixtures, and adversarial RLS tests alongside the Milestone 1 application foundation.
+Milestone 3 of a production-oriented, multi-tenant restaurant management SaaS. The repository includes Supabase Auth with secure SSR cookies, transactional organization onboarding, authorized organization and location context, staff invitations, an entitlement-aware dashboard, and database-enforced tenant isolation.
 
-> **Scope boundary:** this milestone implements identity-linked data and database authorization only. Authentication UI, onboarding, invitations, operational restaurant modules, and external billing behavior remain deferred.
+> **Scope boundary:** recipes, costing, inventory, purchasing, POS integrations, external billing behavior, and every other operational restaurant module remain deferred.
 
 ## Workspace
 
@@ -15,6 +15,7 @@ packages/
 docs/
   architecture.md         Approved architecture recorded as implementation rules
   development.md          Local setup and daily workflows
+  milestone-3-implementation-report.md
   milestones.md           Delivery gates and deferred scope
 supabase/
   migrations/             Ordered schema and RLS migrations
@@ -36,14 +37,14 @@ The repository uses pnpm workspaces and Turborepo. Workspace imports are explici
 ```bash
 pnpm install
 cp .env.example apps/web/.env.local
-pnpm db:start
+supabase start
 pnpm db:verify
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). The application UI remains the foundation screen; Milestone 3 will connect session and onboarding flows to this schema.
+Open [http://localhost:3000](http://localhost:3000). Sign in with `owner@example.test` and the local-only password `local-password-only`, or use `new-owner@example.test` to exercise first-organization onboarding.
 
-The local PostgreSQL instance uses port `55322` to avoid colliding with the Supabase default. `pnpm db:verify` rebuilds it from the migrations and seed, lints stored functions, and runs the pgTAP suite. The local-only fixture password is `local-password-only` for both `owner@example.test` and `manager@example.test`.
+The local PostgreSQL instance uses port `55322` to avoid colliding with the Supabase default. `pnpm db:verify` rebuilds it from the migrations and seed, lints stored functions, runs security advisors, and executes the pgTAP suites. Local Auth also contains `manager@example.test`, `invitee@example.test`, and `attacker@example.test` for scoped and adversarial browser journeys.
 
 ## Verify
 
@@ -54,9 +55,10 @@ pnpm typecheck
 pnpm test
 pnpm build
 pnpm db:verify
+pnpm test:e2e
 ```
 
-Run the application checks in sequence with `pnpm check`. Run `pnpm db:verify` while the local database is running. GitHub Actions runs both sets of gates on pull requests and pushes to `main`.
+Run the application checks in sequence with `pnpm check`. Run `pnpm db:verify` with the local database available. Run `pnpm test:e2e` with the full local Supabase stack running and its `API_URL`/`ANON_KEY` exported as the two public Supabase environment variables described in the development guide. GitHub Actions runs application, database, and browser gates separately.
 
 ## Add interface components
 
@@ -72,12 +74,13 @@ Reusable primitives belong in `packages/ui`; app-specific compositions remain in
 
 - [Architecture](docs/architecture.md)
 - [Development workflow](docs/development.md)
-- [Milestone 2 implementation report](docs/milestone-2-implementation-report.md)
+- [Milestone 3 implementation report](docs/milestone-3-implementation-report.md)
 - [Milestone gates](docs/milestones.md)
 - [Security baseline](docs/security.md)
 - [Modular-monolith decision](docs/decisions/0001-modular-monolith.md)
 - [Tenant authorization decision](docs/decisions/0002-database-enforced-tenant-authorization.md)
+- [SSR auth and tenant workflow decision](docs/decisions/0003-ssr-auth-and-tenant-workflows.md)
 
 ## Current status
 
-Milestone 2 is complete. Milestone 3 requires explicit approval before authentication UI, onboarding, invitations, or organization-shell work begins.
+Milestone 3 implementation is complete. Milestone 4 requires explicit approval before recipes, costing, or any operational module begins.

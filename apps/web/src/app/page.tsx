@@ -20,7 +20,7 @@ const foundations = [
     eyebrow: "Security",
     title: "Tenant safety is a gate",
     description:
-      "Authentication, authorization, and database isolation are documented now and implemented together in the next approved milestone.",
+      "Verified Supabase sessions, server permissions, and PostgreSQL row-level security guard every tenant boundary.",
   },
   {
     eyebrow: "Delivery",
@@ -60,7 +60,7 @@ export default function HomePage() {
               </p>
             </div>
           </div>
-          <Badge variant="outline">Milestone 1</Badge>
+          <Badge variant="outline">Milestone 3</Badge>
         </header>
 
         <section className="relative grid flex-1 items-center gap-14 py-20 lg:grid-cols-[1.25fr_0.75fr] lg:py-28">
@@ -69,24 +69,29 @@ export default function HomePage() {
               Commercial SaaS foundation
             </Badge>
             <h1 className="text-5xl font-semibold tracking-[-0.045em] text-balance sm:text-6xl lg:text-7xl">
-              Operational clarity starts with a secure foundation.
+              Your restaurant organization, securely in context.
             </h1>
             <p className="text-muted-foreground mt-6 max-w-2xl text-lg leading-8 text-pretty sm:text-xl">
-              A production-oriented workspace for the systems that keep
-              restaurant companies in control—from recipes and purchasing to
-              inventory and integrations.
+              Create an organization, manage authorized locations, invite your
+              team, and keep every request inside its verified tenant and
+              subscription boundary.
             </p>
             <div className="mt-9 flex flex-wrap items-center gap-4">
               <a
                 className={cn(buttonVariants({ size: "lg" }), "rounded-full")}
-                href="#foundation"
+                href="/auth/sign-up"
               >
-                Explore the foundation
-                <span aria-hidden="true">↓</span>
+                Create your organization
               </a>
-              <p className="text-muted-foreground text-sm">
-                Domain features begin only after the next security review.
-              </p>
+              <a
+                className={cn(
+                  buttonVariants({ size: "lg", variant: "outline" }),
+                  "rounded-full",
+                )}
+                href="/auth/sign-in"
+              >
+                Sign in
+              </a>
             </div>
           </div>
 
@@ -133,10 +138,10 @@ export default function HomePage() {
         <section className="border-border/80 border-t py-16" id="foundation">
           <div className="mb-10 max-w-2xl">
             <p className="text-primary text-sm font-semibold tracking-[0.18em] uppercase">
-              Foundation first
+              Secure organization shell
             </p>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-              Ready for careful, testable growth.
+              Ready for authorized collaboration.
             </h2>
           </div>
           <div className="grid gap-5 md:grid-cols-3">
@@ -159,8 +164,8 @@ export default function HomePage() {
         </section>
 
         <footer className="border-border/80 text-muted-foreground flex flex-col gap-2 border-t py-8 text-xs sm:flex-row sm:items-center sm:justify-between">
-          <p>RestaurantOS foundation</p>
-          <p>No database, authentication, or tenant data is active yet.</p>
+          <p>RestaurantOS organization shell</p>
+          <p>Operational modules remain intentionally out of scope.</p>
         </footer>
       </div>
     </main>

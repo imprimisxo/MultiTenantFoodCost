@@ -4,7 +4,7 @@
 
 This document records the approved architecture as implementation constraints. The product is a commercial, multi-tenant restaurant operations platform for companies with one or more locations. Planned capabilities include recipes, food costing, inventory, purchasing, POS integrations, and subscription billing.
 
-Milestones 1 and 2 establish the delivery foundation and the tenant data boundary. Authentication UI, onboarding, operational capabilities, and external billing synchronization remain later milestones.
+Milestones 1 through 3 establish the delivery foundation, tenant data boundary, authenticated request boundary, and organization shell. Operational capabilities and external billing synchronization remain later milestones.
 
 ## System shape
 
@@ -16,24 +16,24 @@ flowchart LR
   Web --> UI[packages/ui<br/>Shared interface system]
   Web --> Modules[Future capability modules]
   Modules --> Domain[Future domain rules]
-  Modules --> Data[Tenant authorization contract]
+  Web --> Data[Tenant authorization contract]
   Data --> Postgres[(PostgreSQL + RLS)]
   Web --> Auth[Supabase Auth]
   Modules --> External[Stripe / POS / vendors]
 
   classDef future stroke-dasharray: 5 5,fill:#fafafa,color:#666;
-  class Modules,Domain,Auth,External future;
+  class Modules,Domain,External future;
 ```
 
-Dashed nodes remain planned. The PostgreSQL tenant model and authorization helpers are implemented in versioned migrations; application adapters arrive with the first approved server workflow.
+Dashed nodes remain planned. Supabase Auth, user-scoped server clients, the PostgreSQL tenant model, and reviewed tenant workflow functions are implemented.
 
 ## Current package boundaries
 
-| Workspace                    | Responsibility                                                      | May depend on                             |
-| ---------------------------- | ------------------------------------------------------------------- | ----------------------------------------- |
-| `apps/web`                   | Routing, server-rendered UI, composition, future request boundaries | `packages/ui`, future application modules |
-| `packages/ui`                | Reusable accessible primitives, design tokens, shared CSS           | React and presentation-only libraries     |
-| `packages/typescript-config` | Strict compiler policy                                              | Nothing at runtime                        |
+| Workspace                    | Responsibility                                                        | May depend on                            |
+| ---------------------------- | --------------------------------------------------------------------- | ---------------------------------------- |
+| `apps/web`                   | SSR auth, routing, server actions, tenant context, and UI composition | `packages/ui`, Supabase client libraries |
+| `packages/ui`                | Reusable accessible primitives, design tokens, shared CSS             | React and presentation-only libraries    |
+| `packages/typescript-config` | Strict compiler policy                                                | Nothing at runtime                       |
 
 Future domain and infrastructure packages must be proposed when their milestone begins. They are not pre-created as empty shells because package boundaries should follow approved, testable responsibilities.
 
@@ -72,14 +72,16 @@ Roles are organization-owned and can be organization- or location-scoped through
 
 For a tenant-scoped server request:
 
-1. Verify the Supabase session on the server once Milestone 3 introduces request handling.
-2. Resolve the selected organization and optional location from trusted server state.
+1. Refresh SSR cookies in Next.js Proxy and validate the user with `getUser()` at server actions/pages (`getClaims()` is used for the optimistic route boundary).
+2. Treat organization and location cookies as untrusted selectors; resolve them against active membership and RLS-visible rows.
 3. Confirm active membership and location access.
 4. Evaluate the named permission.
 5. Evaluate any required subscription entitlement.
 6. Execute through a user-scoped database connection so the implemented PostgreSQL RLS policies provide the final tenant boundary.
 
 A service-role connection must never replace this path for ordinary user requests. Security-definer helpers live in the unexposed `private` schema, pin an empty search path, filter on `auth.uid()`, and are callable only by `authenticated` where required by policy evaluation.
+
+Onboarding and invitation acceptance are public-schema RPC entry points because PostgREST exposes the public schema. They are security-definer functions with empty search paths, explicit execute grants, verified-email checks, permission checks, tenant-consistent foreign keys, and transactional writes. Plaintext invitation tokens are returned once; only SHA-256 digests are persisted.
 
 ## Exact numbers
 

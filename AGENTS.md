@@ -9,7 +9,7 @@ These rules apply to every contributor and coding agent working in this reposito
 - When domain modules are approved, expose narrow public entry points. Do not import another module's internal files.
 - Domain rules must not depend on Next.js, Supabase, Stripe, or a UI package. Infrastructure adapts external services to domain-owned interfaces.
 - Prefer server components. Add `"use client"` only at the smallest interactive boundary.
-- Do not create database, authentication, authorization, or billing implementation during Milestone 1.
+- Milestones 1–3 are implemented. Do not begin recipes, costing, inventory, purchasing, POS integrations, external billing, or another operational module without the next explicit milestone approval.
 
 ## Tenant and security requirements
 
@@ -20,6 +20,9 @@ These rules apply to every contributor and coding agent working in this reposito
 - Default to deny. A missing membership, permission, location scope, subscription entitlement, or tenant context must reject the operation.
 - Never expose a Supabase service-role key, Stripe secret, database URL, or webhook secret to browser code. Only variables prefixed with `NEXT_PUBLIC_` may be imported by client components.
 - Service-role access is reserved for narrowly scoped server-side administration and background jobs; it must not back normal user requests.
+- Use a fresh `@supabase/ssr` server client per request. Validate identity with `getUser()` or `getClaims()`; never authorize from `getSession()` data alone.
+- Keep auth and tenant-context cookies HTTP-only, secure in production, same-site, and server-managed. Revalidate organization, location, permission, membership status, and entitlement at every mutation boundary.
+- Store invitation secrets only as cryptographic digests. Never log or persist a plaintext invitation token after presenting the one-time link to its creator.
 - Validate webhook signatures and make integration handlers idempotent before accepting external events.
 - Do not log tokens, secrets, payment details, or sensitive personal data.
 
@@ -36,7 +39,7 @@ These rules apply to every contributor and coding agent working in this reposito
 - Tenant-aware work is incomplete until tests prove cross-organization access is denied at both the service and database-policy layers.
 - Favor deterministic unit tests for domain rules, integration tests for database/RLS behavior, and a small number of end-to-end tests for critical journeys.
 - Never claim a feature works without running the relevant check. Report the exact command and outcome.
-- Required repository gates are `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm build`.
+- Required repository gates are `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, and `pnpm db:verify`. Run `pnpm test:e2e` for auth, onboarding, or organization-shell changes.
 
 ## Code standards
 

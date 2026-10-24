@@ -1,12 +1,12 @@
 # Security baseline
 
-## Milestone 2 posture
+## Milestone 3 posture
 
-The database schema is ready for Supabase identities, but the application still contains no authentication UI or privileged client. PostgreSQL is the final authorization boundary: public tables have forced RLS, tenant policies derive identity from `auth.uid()`, and normal users receive only the table and column grants needed by an allowed workflow.
+The application uses Supabase Auth through `@supabase/ssr`, server actions, HTTP-only same-site cookies, PKCE-compatible callback exchange, and a Next.js Proxy refresh boundary. Protected pages validate the current user on the server. PostgreSQL remains the final authorization boundary: public tables have forced RLS, tenant policies derive identity from `auth.uid()`, and normal users receive only the grants needed by an allowed workflow.
 
 Tenant membership, permission, location scope, and subscription entitlement checks run in security-definer functions in the unexposed `private` schema. Those functions use an empty search path, schema-qualified relations, explicit execute grants, active-membership checks, and no user-editable JWT authorization metadata.
 
-Direct authenticated writes to memberships, roles, role assignments, permission mappings, plans, subscriptions, and entitlements are denied. Future management workflows must use reviewed server-side operations that preserve the same invariants; Milestone 3 must not weaken these table grants for convenience.
+Direct authenticated writes to memberships, roles, role assignments, permission mappings, plans, subscriptions, entitlements, invitations, and audit events are denied. Transactional security-definer functions handle onboarding and invitation state changes after verified-email, permission, recipient, expiry, status, and tenant checks. Location writes retain user-scoped RLS and add a database trigger that enforces the exact numeric active-location entitlement under an advisory transaction lock.
 
 ## Implemented controls
 
@@ -16,10 +16,14 @@ Direct authenticated writes to memberships, roles, role assignments, permission 
 - immutable tenant identifiers and tenant-consistent composite foreign keys
 - exact numeric persistence for subscription prices and entitlement quantities
 - adversarial PostgreSQL tests using distinct authenticated identities
+- expiring invitation tokens persisted only as SHA-256 digests
+- single-use invitation acceptance bound to the verified recipient email
+- structured tenant audit events for onboarding, location, and invitation changes
+- 24-hour absolute and eight-hour idle session limits in local Supabase configuration
 
 ## Non-negotiable controls for later milestones
 
-- server-verified Supabase sessions; client state is never authorization evidence
+- server-verified Supabase sessions; client state and context cookies are never authorization evidence
 - signed and idempotent webhook processing
 - CSRF, redirect, cookie, and cache behavior reviewed at each server mutation boundary
 - structured audit events for membership, role, billing, integration, and inventory changes

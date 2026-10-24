@@ -4,19 +4,19 @@ import { describe, expect, it } from "vitest";
 import HomePage from "./page";
 
 describe("home page", () => {
-  it("describes the foundation without presenting deferred modules as active", () => {
+  it("presents the secure organization shell without presenting deferred modules as active", () => {
     render(<HomePage />);
 
     expect(
       screen.getByRole("heading", {
-        name: "Operational clarity starts with a secure foundation.",
+        name: "Your restaurant organization, securely in context.",
       }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Milestone 1")).toBeInTheDocument();
+    expect(screen.getByText("Milestone 3")).toBeInTheDocument();
     expect(screen.getAllByText("Planned")).toHaveLength(6);
     expect(
       screen.getByText(
-        "No database, authentication, or tenant data is active yet.",
+        "Operational modules remain intentionally out of scope.",
       ),
     ).toBeInTheDocument();
   });
